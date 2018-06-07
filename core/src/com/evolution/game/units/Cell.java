@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class Cell extends GamePoint {
-
     float angle;
     float acceleration;
     Vector2 tmp;
@@ -43,7 +42,7 @@ public abstract class Cell extends GamePoint {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, position.x - 32, position.y - 32, 32, 32, 64, 64, scale, scale, angle, 0, 0, 64, 64, false, false);
+        batch.draw(texture, position.x - 32, position.y - 32, 32, 32, 64, 64, scale, scale, angle);
     }
 
     public void update(float dt) {

@@ -1,16 +1,16 @@
 package com.evolution.game.units;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.evolution.game.GameScreen;
 import com.evolution.game.Rules;
 
 public class Consumable extends GamePoint {
 
     public enum Type {
-        FOOD("core/assets/Food.png"),
-        BAD_FOOD("core/assets/BadFood.png");
+        FOOD("Food"),
+        BAD_FOOD("BadFood");
 
         private String textureName;
 
@@ -25,15 +25,21 @@ public class Consumable extends GamePoint {
         return type;
     }
 
-    public Consumable(Type type) {
-        this.texture = new Texture(type.textureName);
+    public Consumable(GameScreen gs, Type type) {
+        this.gs = gs;
+        this.texture = gs.getAtlas().findRegion(type.textureName);
         this.position = new Vector2(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
         this.velocity = new Vector2(MathUtils.random(-30.0f, 30.0f), MathUtils.random(-30.0f, 30.0f));
         this.type = type;
     }
 
-    public void recreate() {
-        this.position.set(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
+    public void consumed() {
+        active = false;
+    }
+
+    public void init() {
+        position.set(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
+        active = true;
     }
 
     public void render(SpriteBatch batch) {

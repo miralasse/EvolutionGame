@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.evolution.game.GameScreen;
 import com.evolution.game.Rules;
 
 public class Hero extends Cell {
 
-    public Hero() {
+    public Hero(GameScreen gs) {
         super(640.0f, 360.0f, 300.0f);
-        this.texture = new Texture("core/assets/Char.png");
+        this.gs = gs;
+        this.texture = gs.getAtlas().findRegion("Char");
     }
 
     @Override
