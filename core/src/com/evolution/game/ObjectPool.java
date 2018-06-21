@@ -7,11 +7,6 @@ public abstract class ObjectPool<T extends Poolable> {
     protected List<T> activeList;
     protected List<T> freeList;
 
-    public ObjectPool() {
-        this.activeList = new ArrayList<T>();
-        this.freeList = new ArrayList<T>();
-    }
-
     public List<T> getActiveList() {
         return activeList;
     }
@@ -24,6 +19,11 @@ public abstract class ObjectPool<T extends Poolable> {
 
     public void free(int index) {
         freeList.add(activeList.remove(index));
+    }
+
+    public ObjectPool() {
+        this.activeList = new ArrayList<T>();
+        this.freeList = new ArrayList<T>();
     }
 
     public void addObjectsToFreeList(int size) {
@@ -48,5 +48,4 @@ public abstract class ObjectPool<T extends Poolable> {
             }
         }
     }
-
 }

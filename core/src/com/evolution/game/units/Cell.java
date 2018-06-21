@@ -32,6 +32,9 @@ public abstract class Cell extends GamePoint {
 
     public void grow() {
         scale += 0.05f;
+        if (scale > 5.0f) {
+            scale = 5.0f;
+        }
     }
 
     public void decrease() {

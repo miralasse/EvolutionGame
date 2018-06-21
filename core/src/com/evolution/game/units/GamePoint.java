@@ -2,10 +2,11 @@ package com.evolution.game.units;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+
 import com.evolution.game.GameScreen;
 import com.evolution.game.Poolable;
 
-public abstract class GamePoint implements Poolable{
+public abstract class GamePoint implements Poolable {
     GameScreen gs;
     TextureRegion texture;
     Vector2 position;

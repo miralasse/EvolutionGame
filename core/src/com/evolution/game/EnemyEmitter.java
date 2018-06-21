@@ -7,14 +7,14 @@ public class EnemyEmitter extends ObjectPool<Enemy> {
     private GameScreen gs;
     private float time;
 
-    public EnemyEmitter(GameScreen gs) {
-        this.gs = gs;
-        this.addObjectsToFreeList(20);
-    }
-
     @Override
     protected Enemy newObject() {
         return new Enemy(gs);
+    }
+
+    public EnemyEmitter(GameScreen gs) {
+        this.gs = gs;
+        this.addObjectsToFreeList(20);
     }
 
     public void render(SpriteBatch batch) {
@@ -25,7 +25,7 @@ public class EnemyEmitter extends ObjectPool<Enemy> {
 
     public void update(float dt) {
         time += dt;
-        if (time >= 1.0f) {
+        if (time >= 3.0f) {
             time = 0.0f;
             getActiveElement().init();
         }

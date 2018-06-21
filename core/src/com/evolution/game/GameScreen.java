@@ -1,16 +1,24 @@
 package com.evolution.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.evolution.game.units.Cell;
 import com.evolution.game.units.Consumable;
+import com.evolution.game.units.Enemy;
 import com.evolution.game.units.Hero;
 
 import java.util.ArrayList;
@@ -18,19 +26,25 @@ import java.util.List;
 
 public class GameScreen implements Screen {
     private SpriteBatch batch;
-    private TextureAtlas atlas;
     private BitmapFont font;
-    private EnemyEmitter enemyEmitter;
     private ConsumableEmitter consumableEmitter;
+    private EnemyEmitter enemyEmitter;
     private Hero hero;
     private List<Cell> cellCollisionList;
+    private Viewport viewport;
+    private Camera camera;
+    private Camera minimapCamera;
+    private Music music;
+    private Sound consumeSound;
+    private Map map;
+    private boolean paused;
+
+    public Viewport getViewport() {
+        return viewport;
+    }
 
     public GameScreen(SpriteBatch batch) {
         this.batch = batch;
-    }
-
-    public TextureAtlas getAtlas() {
-        return atlas;
     }
 
     public ConsumableEmitter getConsumableEmitter() {
@@ -45,41 +59,51 @@ public class GameScreen implements Screen {
         return hero;
     }
 
+
     @Override
     public void show() {
-        atlas = new TextureAtlas("core/assets/game.pack");
+        consumableEmitter = new ConsumableEmitter(this);
         hero = new Hero(this);
         enemyEmitter = new EnemyEmitter(this);
-        consumableEmitter = new ConsumableEmitter(this);
         cellCollisionList = new ArrayList<Cell>();
-        generateFont();
+        font = Assets.getInstance().getAssetManager().get("gomarice48.ttf", BitmapFont.class);
+        camera = new OrthographicCamera(1280, 720);
+        viewport = new FitViewport(1280, 720, camera);
+        music = Assets.getInstance().getAssetManager().get("core/assets/music.wav", Music.class);
+        music.setLooping(true);
+        music.setVolume(0.05f);
+        music.play();
+        consumeSound = Assets.getInstance().getAssetManager().get("core/assets/laser.wav", Sound.class);
+        map = new Map(this);
+        paused = false;
     }
 
     @Override
     public void render(float delta) {
-        update(delta);
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        hero.render(batch);
-        consumableEmitter.render(batch);
-        enemyEmitter.render(batch);
-        font.draw(batch, "Score: -", 20, 700);
-        batch.end();
+                update(delta);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                batch.setProjectionMatrix(camera.combined);
+                batch.begin();
+                consumableEmitter.render(batch);
+                hero.render(batch);
+                enemyEmitter.render(batch);
+                map.render(batch);
+                font.draw(batch, "Score: -", 20, 700);
+                batch.end();
     }
 
     public void checkCollisions() {
         // Проверка столкновений персонажей и еды
         cellCollisionList.clear();
         cellCollisionList.add(hero);
-        for (int i = 0; i < enemyEmitter.getActiveList().size(); i++) {
-            cellCollisionList.add(enemyEmitter.getActiveList().get(i));
-        }
+        cellCollisionList.addAll(enemyEmitter.getActiveList());
         for (int i = 0; i < cellCollisionList.size(); i++) {
             for (int j = 0; j < consumableEmitter.getActiveList().size(); j++) {
                 if (cellCollisionList.get(i).getPosition().dst(consumableEmitter.getActiveList().get(j).getPosition()) < 30) {
                     cellCollisionList.get(i).eatConsumable(consumableEmitter.getActiveList().get(j).getType());
                     consumableEmitter.getActiveList().get(j).consumed();
+                    consumeSound.play();
                 }
             }
         }
@@ -100,39 +124,35 @@ public class GameScreen implements Screen {
     }
 
     public void update(float dt) {
-        hero.update(dt);
-        consumableEmitter.update(dt);
-        enemyEmitter.update(dt);
-        checkCollisions();
-    }
-
-    public void generateFont() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("core/assets/gomarice.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParameter.size = 48;
-        fontParameter.color = Color.WHITE;
-        fontParameter.borderWidth = 2;
-        fontParameter.borderColor = Color.BLACK;
-        fontParameter.shadowOffsetX = 2;
-        fontParameter.shadowOffsetY = 2;
-        fontParameter.shadowColor = Color.GRAY;
-        font = generator.generateFont(fontParameter);
-        generator.dispose();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            paused = !paused;
+        }
+        if (!paused) {
+            music.play();
+            hero.update(dt);
+            camera.position.set(hero.getPosition().x - 32, hero.getPosition().y - 32, 0);
+            camera.update();
+            enemyEmitter.update(dt);
+            consumableEmitter.update(dt);
+            map.update(dt);
+            checkCollisions();
+        } else {
+            music.stop();
+        }
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width, height);
+        viewport.apply();
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
@@ -142,6 +162,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        Assets.getInstance().clear();
     }
 }

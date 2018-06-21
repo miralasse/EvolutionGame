@@ -1,15 +1,16 @@
 package com.evolution.game.units;
 
 import com.badlogic.gdx.math.MathUtils;
+
+import com.evolution.game.Assets;
 import com.evolution.game.GameScreen;
 import com.evolution.game.Rules;
 
 public class Enemy extends Cell {
-
     public Enemy(GameScreen gs) {
-        super(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT), 100.0f);
+        super(0, 0, 100.0f);
         this.gs = gs;
-        this.texture = gs.getAtlas().findRegion("Enemy");
+        this.texture = Assets.getInstance().getAtlas().findRegion("Enemy");
         this.active = false;
     }
 
@@ -19,7 +20,7 @@ public class Enemy extends Cell {
     }
 
     public void init() {
-        position.set(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
+        position.set(MathUtils.random(0, Rules.GLOBAL_WIDTH), MathUtils.random(0, Rules.GLOBAL_HEIGHT));
         scale = 1.0f + MathUtils.random(0.0f, 0.4f);
         active = true;
     }
@@ -30,8 +31,17 @@ public class Enemy extends Cell {
         super.update(dt);
 
         velocity.add(acceleration * (float) Math.cos(Math.toRadians(angle)) * dt, acceleration * (float) Math.sin(Math.toRadians(angle)) * dt);
-        if (position.x > Rules.WORLD_WIDTH) {
-            position.x = 0.0f;
+        if (position.x < 0) {
+            position.x = Rules.GLOBAL_WIDTH;
+        }
+        if (position.y < 0) {
+            position.y = Rules.GLOBAL_HEIGHT;
+        }
+        if (position.x > Rules.GLOBAL_WIDTH) {
+            position.x = 0;
+        }
+        if (position.y > Rules.GLOBAL_HEIGHT) {
+            position.y = 0;
         }
 
         // <----- Мозги прописывать сюда

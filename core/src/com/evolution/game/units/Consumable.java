@@ -1,45 +1,56 @@
 package com.evolution.game.units;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.evolution.game.GameScreen;
 import com.evolution.game.Rules;
 
 public class Consumable extends GamePoint {
-
     public enum Type {
-        FOOD("Food"),
-        BAD_FOOD("BadFood");
+        FOOD(0), BAD_FOOD(1);
 
-        private String textureName;
+        private int textureIndex;
 
-        Type(String textureName) {
-            this.textureName = textureName;
+        public int getTextureIndex() {
+            return textureIndex;
+        }
+
+        Type(int textureIndex) {
+            this.textureIndex = textureIndex;
         }
     }
 
     private Type type;
+    private TextureRegion[] regions;
 
     public Type getType() {
         return type;
     }
 
-    public Consumable(GameScreen gs, Type type) {
+    public Consumable(GameScreen gs, TextureRegion[] regions) {
         this.gs = gs;
-        this.texture = gs.getAtlas().findRegion(type.textureName);
-        this.position = new Vector2(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
-        this.velocity = new Vector2(MathUtils.random(-30.0f, 30.0f), MathUtils.random(-30.0f, 30.0f));
-        this.type = type;
+        this.regions = regions;
+        this.texture = regions[0];
+        this.position = new Vector2(0, 0);
+        this.velocity = new Vector2(0, 0);
+        this.type = Type.FOOD;
+        this.active = false;
     }
 
     public void consumed() {
         active = false;
     }
 
-    public void init() {
-        position.set(MathUtils.random(0, Rules.WORLD_WIDTH), MathUtils.random(0, Rules.WORLD_HEIGHT));
-        active = true;
+    public void init(Type type) {
+        this.position.set(MathUtils.random(0, Rules.GLOBAL_WIDTH), MathUtils.random(0, Rules.GLOBAL_HEIGHT));
+        this.velocity.set(MathUtils.random(-30.0f, 30.0f), MathUtils.random(-30.0f, 30.0f));
+        this.type = type;
+        this.texture = regions[type.textureIndex];
+        this.active = true;
     }
 
     public void render(SpriteBatch batch) {
@@ -48,17 +59,17 @@ public class Consumable extends GamePoint {
 
     public void update(float dt) {
         position.mulAdd(velocity, dt);
-        if (position.x < -32) {
-            position.x = 1312;
+        if (position.x < 0) {
+            position.x = Rules.GLOBAL_WIDTH;
         }
-        if (position.y < -32) {
-            position.y = 752;
+        if (position.y < 0) {
+            position.y = Rules.GLOBAL_HEIGHT;
         }
-        if (position.x > 1312) {
-            position.x = -32;
+        if (position.x > Rules.GLOBAL_WIDTH) {
+            position.x = 0;
         }
-        if (position.y > 752) {
-            position.y = -32;
+        if (position.y > Rules.GLOBAL_HEIGHT) {
+            position.y = 0;
         }
     }
 }
