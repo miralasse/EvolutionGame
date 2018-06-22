@@ -6,55 +6,69 @@ repeat: none
 mapBack
   rotate: false
   xy: 2, 2
-  size: 256, 144
-  orig: 256, 144
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+simpleButton
+  rotate: false
+  xy: 204, 2
+  size: 320, 80
+  orig: 320, 80
+  offset: 0, 0
+  index: -1
+shortButton
+  rotate: false
+  xy: 204, 84
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+Char
+  rotate: false
+  xy: 526, 2
+  size: 320, 64
+  orig: 320, 64
   offset: 0, 0
   index: -1
 Food
   rotate: false
-  xy: 2, 148
+  xy: 204, 166
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 Enemy
   rotate: false
-  xy: 68, 148
-  size: 64, 64
-  orig: 64, 64
-  offset: 0, 0
-  index: -1
-Char
-  rotate: false
-  xy: 134, 148
+  xy: 286, 84
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 BadFood
   rotate: false
-  xy: 260, 2
+  xy: 286, 150
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 playerPoint
   rotate: false
-  xy: 2, 214
+  xy: 2, 204
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: -1
 enemyPoint
   rotate: false
-  xy: 2, 226
+  xy: 2, 216
   size: 5, 5
   orig: 5, 5
   offset: 0, 0
   index: -1
 consumablePoint
   rotate: false
-  xy: 2, 233
+  xy: 2, 223
   size: 5, 5
   orig: 5, 5
   offset: 0, 0

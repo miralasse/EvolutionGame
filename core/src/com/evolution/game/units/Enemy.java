@@ -19,9 +19,9 @@ public class Enemy extends Cell {
         active = false;
     }
 
-    public void init() {
+    public void init(float initialScale) {
         position.set(MathUtils.random(0, Rules.GLOBAL_WIDTH), MathUtils.random(0, Rules.GLOBAL_HEIGHT));
-        scale = 1.0f + MathUtils.random(0.0f, 0.4f);
+        scale = initialScale + MathUtils.random(0.0f, 0.4f);
         active = true;
     }
 
