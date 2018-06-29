@@ -3,6 +3,7 @@ package com.evolution.game.units;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -16,23 +17,23 @@ public class Hero extends Cell {
     private TextureRegion[] regions;
     private float animationTimer;
     private float timePerFrame;
-    private float nextLevelScale;
+    private StringBuilder guiString;
+    private StringBuilder levelString;
+    private int score;
+    private int showedScore;
+
+    public void addScore(int amount) {
+        score += amount;
+    }
 
     public Hero(GameScreen gs) {
         super(640.0f, 360.0f, 300.0f);
         this.gs = gs;
-        this.regions = new TextureRegion(Assets.getInstance().getAtlas().findRegion("Char")).split(64,64)[0];
-//        this.texture = this.regions[0];
+        this.regions = new TextureRegion(Assets.getInstance().getAtlas().findRegion("Char")).split(64, 64)[0];
         this.timePerFrame = 0.1f;
-        this.nextLevelScale = 3.0f;
-    }
-
-    public float getNextLevelScale() {
-        return nextLevelScale;
-    }
-
-    public void setNextLevelScale(float nextLevelScale) {
-        this.nextLevelScale = nextLevelScale;
+        this.scale = 1.0f;
+        this.guiString = new StringBuilder(200);
+        this.levelString = new StringBuilder(200);
     }
 
     @Override
@@ -41,10 +42,29 @@ public class Hero extends Cell {
         scale = 1.0f;
     }
 
+    @Override
+    public void eatConsumable(Consumable.Type type) {
+        super.eatConsumable(type);
+        switch (type) {
+            case FOOD:
+                score += 100;
+                break;
+        }
+    }
+
     public void update(float dt) {
         super.update(dt);
         animationTimer += dt;
-
+        if (showedScore < score) {
+            int delta = (int) ((score - showedScore) * 0.02f);
+            if (delta < 4) {
+                delta = 4;
+            }
+            showedScore += delta;
+            if (showedScore > score) {
+                showedScore = score;
+            }
+        }
         if (Gdx.input.isTouched()) {
             tmp.set(Gdx.input.getX(), Gdx.input.getY());
             gs.getViewport().unproject(tmp);
@@ -65,11 +85,23 @@ public class Hero extends Cell {
             }
             velocity.add(acceleration * (float) Math.cos(Math.toRadians(angle)) * dt, acceleration * (float) Math.sin(Math.toRadians(angle)) * dt);
         }
+
+        gs.getParticleEmitter().setup(position.x, position.y, MathUtils.random(-10, 10), MathUtils.random(-10, 10), 10.2f, 4, 4f, 0, 1, 0, 0.2f, 0, 1, 0, 0);
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        int currentFrame = (int)(animationTimer / timePerFrame) % regions.length;
+        int currentFrame = (int) (animationTimer / timePerFrame) % regions.length;
         batch.draw(regions[currentFrame], position.x - 32, position.y - 32, 32, 32, 64, 64, scale, scale, angle);
+    }
+
+    public void renderGUI(SpriteBatch batch, BitmapFont font) {
+        guiString.setLength(0);
+        guiString.append("Score: ").append(showedScore);
+        font.draw(batch, guiString, 20, 700);
+
+        levelString.setLength(0);
+        levelString.append("Level: ").append(gs.getLevel());
+        font.draw(batch, levelString, 20, 650);
     }
 }

@@ -27,6 +27,10 @@ public abstract class GamePoint implements Poolable {
         return scale;
     }
 
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+
     public boolean checkCollision(GamePoint another) {
         return this.position.dst(another.position) < (this.getScale() * 32.0f + another.getScale() * 32.0f) * 0.8f;
     }

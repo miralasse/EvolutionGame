@@ -12,13 +12,13 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.evolution.game.units.Cell;
+import com.evolution.game.units.Enemy;
 import com.evolution.game.units.Hero;
 
 import java.util.ArrayList;
@@ -28,29 +28,34 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private BitmapFont font48;
     private BitmapFont font24;
+    private Map map;
+
     private ConsumableEmitter consumableEmitter;
     private EnemyEmitter enemyEmitter;
+    private ParticleEmitter particleEmitter;
     private Hero hero;
     private List<Cell> cellCollisionList;
+
     private Viewport viewport;
     private Camera camera;
     private Camera windowCamera;
     private Music music;
     private Sound consumeSound;
     private MiniMap miniMap;
+
     private boolean paused;
     private int level;
 
     private Stage stage;
     private Skin skin;
-    private Button pauseGameButton;
-
-    public Viewport getViewport() {
-        return viewport;
-    }
+    private TextButton pauseGameButton;
 
     public GameScreen(SpriteBatch batch) {
         this.batch = batch;
+    }
+
+    public Viewport getViewport() {
+        return viewport;
     }
 
     public ConsumableEmitter getConsumableEmitter() {
@@ -65,31 +70,42 @@ public class GameScreen implements Screen {
         return hero;
     }
 
+    public ParticleEmitter getParticleEmitter() {
+        return particleEmitter;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
     @Override
     public void show() {
-        level = 1;
-
-        consumableEmitter = new ConsumableEmitter(this);
         hero = new Hero(this);
+        consumableEmitter = new ConsumableEmitter(this);
         enemyEmitter = new EnemyEmitter(this);
+        particleEmitter = new ParticleEmitter();
         cellCollisionList = new ArrayList<>();
+        map = new Map(this);
+        miniMap = new MiniMap(this);
         font48 = Assets.getInstance().getAssetManager().get("core/assets/gomarice48.ttf", BitmapFont.class);
         font24 = Assets.getInstance().getAssetManager().get("core/assets/gomarice24.ttf", BitmapFont.class);
-
         camera = new OrthographicCamera(1280, 720);
         viewport = new FitViewport(1280, 720, camera);
-        miniMap = new MiniMap(this);
         music = Assets.getInstance().getAssetManager().get("core/assets/music.wav", Music.class);
         music.setLooping(true);
         music.setVolume(0.05f);
         music.play();
         consumeSound = Assets.getInstance().getAssetManager().get("core/assets/laser.wav", Sound.class);
-        paused = false;
         windowCamera = new OrthographicCamera(1280, 720);
-        windowCamera.position.set(640,360,0);
+        windowCamera.position.set(640, 360, 0);
         windowCamera.update();
-
+        paused = false;
         createPauseButton();
+        level = 1;
     }
 
     public void createPauseButton() {
@@ -115,21 +131,33 @@ public class GameScreen implements Screen {
         });
     }
 
+    public void levelUp() {
+        level++;
+        consumableEmitter.setBadFoodChance(10 + level * 2);
+        float deltaScale = hero.getScale() - 1.0f;
+        hero.setScale(1.0f);
+        for (int i = enemyEmitter.activeList.size() - 1; i >= 0; i--) {
+            Enemy e = enemyEmitter.getActiveList().get(i);
+            e.setScale(e.getScale() - deltaScale);
+        }
+    }
+
     @Override
     public void render(float delta) {
         update(delta);
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        map.render(batch);
         consumableEmitter.render(batch);
+        particleEmitter.render(batch);
         hero.render(batch);
         enemyEmitter.render(batch);
         batch.end();
         batch.setProjectionMatrix(windowCamera.combined);
         batch.begin();
-        font48.draw(batch, "Score: -", 20, 700);
-        font48.draw(batch, "Level: " +  level, 20, 650);
+        hero.renderGUI(batch, font48);
         miniMap.render(batch);
         batch.end();
         stage.draw();
@@ -172,45 +200,38 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
             ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
         }
+
         if (!paused) {
             music.play();
-            if ( (hero.getNextLevelScale() - hero.getScale()) < 0.01f) {
-                loadNewLevel();
-            }
+            pauseGameButton.setText("Pause");
+            map.update(dt);
             hero.update(dt);
+            if (hero.getScale() > 2.0f) {
+                levelUp();
+            }
             camera.position.set(hero.getPosition().x - 32, hero.getPosition().y - 32, 0);
+            if (camera.position.x < Rules.WORLD_WIDTH / 2) {
+                camera.position.x = Rules.WORLD_WIDTH / 2;
+            }
+            if (camera.position.x > Rules.GLOBAL_WIDTH - Rules.WORLD_WIDTH / 2) {
+                camera.position.x = Rules.GLOBAL_WIDTH - Rules.WORLD_WIDTH / 2;
+            }
+            if (camera.position.y < Rules.WORLD_HEIGHT / 2) {
+                camera.position.y = Rules.WORLD_HEIGHT / 2;
+            }
+            if (camera.position.y > Rules.GLOBAL_HEIGHT - Rules.WORLD_HEIGHT / 2) {
+                camera.position.y = Rules.GLOBAL_HEIGHT - Rules.WORLD_HEIGHT / 2;
+            }
             camera.update();
             enemyEmitter.update(dt);
             consumableEmitter.update(dt);
+            particleEmitter.update(dt);
             checkCollisions();
         } else {
             music.stop();
-
+            pauseGameButton.setText("Paused");
         }
         stage.act(dt);
-    }
-
-    public void loadNewLevel(){
-        while (level <= 3) {
-            level++;
-            enemyEmitter.clearPool();
-            consumableEmitter.clearPool();
-            switch (level) {
-                case 2:
-                    consumableEmitter.setBadFoodPercentage(15);
-                    consumableEmitter.generateConsumable(10);
-                    enemyEmitter.setInitialScale(hero.getNextLevelScale());
-                    hero.setNextLevelScale(5.0f);
-                    break;
-                case 3:
-                    consumableEmitter.setBadFoodPercentage(30);
-                    consumableEmitter.generateConsumable(10);
-                    enemyEmitter.setInitialScale(hero.getNextLevelScale());
-                    hero.setNextLevelScale(8.0f);
-                    break;
-            }
-            break;
-        }
     }
 
     @Override

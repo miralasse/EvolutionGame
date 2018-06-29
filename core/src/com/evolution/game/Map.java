@@ -2,47 +2,68 @@ package com.evolution.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.MathUtils;
 
 public class Map {
-    GameScreen gs;
-    TextureRegion texture;
-    TextureRegion textureHeroPoint;
-    TextureRegion textureEnemyPoint;
-    TextureRegion textureFoodPoint;
-    Vector2 position;
+    private GameScreen gs;
+    private TextureRegion grassRegion;
+    private TextureRegion wallRegion;
+    private byte[][] data;
+    private int sizeX, sizeY;
+
+    public static final int CELL_SIZE = 40;
 
     public Map(GameScreen gs) {
-        this.position = new Vector2(gs.getHero().getPosition().x + 364.0f, gs.getHero().getPosition().y - 340.0f);
         this.gs = gs;
-        this.texture = Assets.getInstance().getAtlas().findRegion("mapBack");
-        this.textureHeroPoint = Assets.getInstance().getAtlas().findRegion("playerPoint");
-        this.textureEnemyPoint = Assets.getInstance().getAtlas().findRegion("enemyPoint");
-        this.textureFoodPoint = Assets.getInstance().getAtlas().findRegion("consumablePoint");
+        this.grassRegion = Assets.getInstance().getAtlas().findRegion("grass");
+        this.wallRegion = Assets.getInstance().getAtlas().findRegion("wall");
+        this.sizeX = Rules.GLOBAL_WIDTH / CELL_SIZE;
+        this.sizeY = Rules.GLOBAL_HEIGHT / CELL_SIZE;
+        this.data = new byte[sizeX][sizeY];
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                if (MathUtils.random(0, 100) < 2) {
+                    data[i][j] = 1;
+                }
+            }
+        }
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, position.x, position.y);
-
-        float mapHeroX = this.position.x + (gs.getHero().getPosition().x / Rules.GLOBAL_WIDTH)*256.0f;
-        float mapHeroY = this.position.y + (gs.getHero().getPosition().x / Rules.GLOBAL_WIDTH)*144.0f;
-        batch.draw(textureHeroPoint, mapHeroX, mapHeroY);
-
-        for (int i = 0; i < gs.getEnemyEmitter().activeList.size(); i++){
-            float mapEnemyX = this.position.x + (gs.getEnemyEmitter().activeList.get(i).getPosition().x / Rules.GLOBAL_WIDTH)*256.0f;
-            float mapEnemyY = this.position.y + (gs.getEnemyEmitter().activeList.get(i).getPosition().y / Rules.GLOBAL_HEIGHT)*144.0f;
-            batch.draw(textureEnemyPoint, mapEnemyX, mapEnemyY);
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                batch.draw(grassRegion, i * 40, j * 40);
+                if (data[i][j] == 1) {
+                    batch.draw(wallRegion, i * 40, j * 40);
+                }
+            }
         }
+    }
 
-        for (int i = 0; i < gs.getConsumableEmitter().activeList.size(); i++){
-            float mapConsumableX = this.position.x + (gs.getConsumableEmitter().activeList.get(i).getPosition().x / Rules.GLOBAL_WIDTH)*256.0f;
-            float mapConsumableY = this.position.y + (gs.getConsumableEmitter().activeList.get(i).getPosition().y / Rules.GLOBAL_HEIGHT)*144.0f;
-            batch.draw(textureFoodPoint, mapConsumableX, mapConsumableY);
+    public boolean isPointEmpty(float x, float y) {
+        int cellX = (int) (x / CELL_SIZE);
+        int cellY = (int) (y / CELL_SIZE);
+        return data[cellX][cellY] == 0;
+    }
+
+    public boolean isPointEmpty(float x, float y, float radius) {
+        for (int i = 0; i < 12; i++) {
+            float tmpX = x + radius * (float) Math.cos(6.28f / 12f * i);
+            float tmpY = y + radius * (float) Math.sin(6.28f / 12f * i);
+            int cellX = (int) (tmpX / CELL_SIZE);
+            int cellY = (int) (tmpY / CELL_SIZE);
+            if (cellX < 0 || cellY < 0 || cellX > sizeX - 1 || cellY > sizeY - 1) {
+                return false;
+            }
+            if (data[cellX][cellY] == 1) {
+                return false;
+            }
         }
+        return true;
     }
 
     public void update(float dt) {
-        position.set(gs.getHero().getPosition().x + 364.0f, gs.getHero().getPosition().y - 340.0f);
 
     }
 }
+

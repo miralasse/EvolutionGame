@@ -19,9 +19,9 @@ public class Enemy extends Cell {
         active = false;
     }
 
-    public void init(float initialScale) {
+    public void init() {
         position.set(MathUtils.random(0, Rules.GLOBAL_WIDTH), MathUtils.random(0, Rules.GLOBAL_HEIGHT));
-        scale = initialScale + MathUtils.random(0.0f, 0.4f);
+        scale = 1.0f + MathUtils.random(0.0f, 0.4f);
         active = true;
     }
 
@@ -29,6 +29,10 @@ public class Enemy extends Cell {
         Cell hero = gs.getHero();
 
         super.update(dt);
+
+        if (scale < 0.2f) {
+            active = false;
+        }
 
         velocity.add(acceleration * (float) Math.cos(Math.toRadians(angle)) * dt, acceleration * (float) Math.sin(Math.toRadians(angle)) * dt);
         if (position.x < 0) {

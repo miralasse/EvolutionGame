@@ -9,19 +9,19 @@ public class ConsumableEmitter extends ObjectPool<Consumable> {
     private GameScreen gs;
     private TextureRegion[] regions;
     private float time;
-    private int badFoodPercentage;
+    private int badFoodChance;
 
     public ConsumableEmitter(GameScreen gs) {
         this.gs = gs;
         this.regions = new TextureRegion[2];
         this.regions[Consumable.Type.FOOD.getTextureIndex()] = Assets.getInstance().getAtlas().findRegion("Food");
         this.regions[Consumable.Type.BAD_FOOD.getTextureIndex()] = Assets.getInstance().getAtlas().findRegion("BadFood");
-        this.badFoodPercentage = 10;
-        this.generateConsumable(10);
+        this.badFoodChance = 10;
+        this.generateConsumable(100);
     }
-    
-    public void setBadFoodPercentage(int badFoodPercentage) {
-        this.badFoodPercentage = badFoodPercentage;
+
+    public void setBadFoodChance(int badFoodChance) {
+        this.badFoodChance = badFoodChance;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ConsumableEmitter extends ObjectPool<Consumable> {
 
     public void generateConsumable() {
         Consumable.Type type = Consumable.Type.FOOD;
-        if (MathUtils.random(0, 100) < badFoodPercentage) {
+        if (MathUtils.random(0, 100) < badFoodChance) {
             type = Consumable.Type.BAD_FOOD;
         }
         getActiveElement().init(type);

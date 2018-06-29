@@ -52,23 +52,44 @@ BadFood
   orig: 64, 64
   offset: 0, 0
   index: -1
-playerPoint
+wall
   rotate: false
   xy: 2, 204
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+grass
+  rotate: false
+  xy: 44, 204
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+star16
+  rotate: false
+  xy: 86, 204
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+playerPoint
+  rotate: false
+  xy: 86, 222
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: -1
 enemyPoint
   rotate: false
-  xy: 2, 216
+  xy: 2, 246
   size: 5, 5
   orig: 5, 5
   offset: 0, 0
   index: -1
 consumablePoint
   rotate: false
-  xy: 2, 223
+  xy: 9, 246
   size: 5, 5
   orig: 5, 5
   offset: 0, 0

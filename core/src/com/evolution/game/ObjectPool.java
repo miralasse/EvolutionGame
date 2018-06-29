@@ -49,13 +49,4 @@ public abstract class ObjectPool<T extends Poolable> {
         }
     }
 
-    public void clearPool() {
-        for (int i = 0; i < activeList.size(); i++) {
-            activeList.remove(i);
-        }
-        for (int i = 0; i < freeList.size(); i++) {
-            freeList.remove(i);
-        }
-
-    }
 }

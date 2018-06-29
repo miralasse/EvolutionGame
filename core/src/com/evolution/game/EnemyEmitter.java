@@ -6,12 +6,6 @@ import com.evolution.game.units.Enemy;
 public class EnemyEmitter extends ObjectPool<Enemy> {
     private GameScreen gs;
     private float time;
-    private float initialScale;
-
-
-    public void setInitialScale(float initialScale) {
-        this.initialScale = initialScale;
-    }
 
     @Override
     protected Enemy newObject() {
@@ -21,7 +15,6 @@ public class EnemyEmitter extends ObjectPool<Enemy> {
     public EnemyEmitter(GameScreen gs) {
         this.gs = gs;
         this.addObjectsToFreeList(20);
-        this.initialScale = 1.0f;
     }
 
     public void render(SpriteBatch batch) {
@@ -34,7 +27,7 @@ public class EnemyEmitter extends ObjectPool<Enemy> {
         time += dt;
         if (time >= 3.0f) {
             time = 0.0f;
-            getActiveElement().init(initialScale);
+            getActiveElement().init();
         }
         for (int i = 0; i < activeList.size(); i++) {
             activeList.get(i).update(dt);
