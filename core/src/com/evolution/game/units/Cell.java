@@ -31,7 +31,7 @@ public abstract class Cell extends GamePoint {
     }
 
     public void grow() {
-        scale += 0.2f;
+        scale += 0.1f;
         if (scale > 5.0f) {
             scale = 5.0f;
         }
@@ -72,7 +72,9 @@ public abstract class Cell extends GamePoint {
                 position.set(tmp);
             }
         }
-
-
+        Vector2 vBlocked = gs.getMap().checkBlockedPoint(position.x, position.y, 24.0f * scale);
+        if (vBlocked != null){
+            position.add(vBlocked);
+        }
     }
 }

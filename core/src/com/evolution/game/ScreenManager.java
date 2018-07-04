@@ -78,4 +78,9 @@ public class ScreenManager {
     public void goToTarget() {
         game.setScreen(targetScreen);
     }
+
+    public void setLoadFile(String filename) {
+        gameScreen.setFilename(filename);
+        gameScreen.setSaved(true);
+    }
 }

@@ -53,6 +53,11 @@ public class GameScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private TextButton pauseGameButton;
+    private TextButton saveGameButton;
+    private TextButton menuButton;
+
+    private String filename;
+    private boolean saved;
 
     public GameScreen(SpriteBatch batch) {
         this.batch = batch;
@@ -86,14 +91,27 @@ public class GameScreen implements Screen {
         return level;
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+    }
+
     @Override
     public void show() {
-        hero = new Hero(this);
-        consumableEmitter = new ConsumableEmitter(this);
-        enemyEmitter = new EnemyEmitter(this);
-        particleEmitter = new ParticleEmitter();
-        cellCollisionList = new ArrayList<>();
-        map = new Map(this);
+        if (saved && filename != null) {
+            loadGame();
+        } else {
+            hero = new Hero(this);
+            consumableEmitter = new ConsumableEmitter(this);
+            enemyEmitter = new EnemyEmitter(this);
+            particleEmitter = new ParticleEmitter();
+            cellCollisionList = new ArrayList<>();
+            map = new Map(this);
+            level = 1;
+        }
         miniMap = new MiniMap(this);
         font48 = Assets.getInstance().getAssetManager().get("core/assets/gomarice48.ttf", BitmapFont.class);
         font24 = Assets.getInstance().getAssetManager().get("core/assets/gomarice24.ttf", BitmapFont.class);
@@ -108,8 +126,9 @@ public class GameScreen implements Screen {
         windowCamera.position.set(640, 360, 0);
         windowCamera.update();
         paused = false;
+        saved = false;
         createPauseButton();
-        level = 1;
+
     }
 
     public void saveGame() {
@@ -148,9 +167,7 @@ public class GameScreen implements Screen {
             particleEmitter.reloadResources();
             map.reloadResources(this);
             hero.reloadResources(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -180,6 +197,29 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 paused = !paused;
+            }
+        });
+
+        saveGameButton = new TextButton("Save", skin, "shortButtonSkin");
+        saveGameButton.setPosition(1180, 520);
+        stage.addActor(saveGameButton);
+        saveGameButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                paused = true;
+                saveGame();
+                saved = true;
+                ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
+            }
+        });
+        menuButton = new TextButton("Menu", skin, "shortButtonSkin");
+        menuButton.setPosition(1180, 420);
+        stage.addActor(menuButton);
+        menuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                paused = true;
+                ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
             }
         });
     }
