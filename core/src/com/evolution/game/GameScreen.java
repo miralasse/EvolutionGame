@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -30,7 +29,7 @@ import java.util.List;
 
 public class GameScreen implements Screen {
     private SpriteBatch batch;
-    private BitmapFont font48;
+    private BitmapFont font32;
     private BitmapFont font24;
     private Map map;
 
@@ -113,7 +112,7 @@ public class GameScreen implements Screen {
             level = 1;
         }
         miniMap = new MiniMap(this);
-        font48 = Assets.getInstance().getAssetManager().get("core/assets/gomarice48.ttf", BitmapFont.class);
+        font32 = Assets.getInstance().getAssetManager().get("core/assets/gomarice32.ttf", BitmapFont.class);
         font24 = Assets.getInstance().getAssetManager().get("core/assets/gomarice24.ttf", BitmapFont.class);
         camera = new OrthographicCamera(1280, 720);
         viewport = new FitViewport(1280, 720, camera);
@@ -127,7 +126,7 @@ public class GameScreen implements Screen {
         windowCamera.update();
         paused = false;
         saved = false;
-        createPauseButton();
+        createGUI();
 
     }
 
@@ -178,7 +177,7 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void createPauseButton() {
+    public void createGUI() {
         stage = new Stage(ScreenManager.getInstance().getViewport(), batch);
         Gdx.input.setInputProcessor(stage);
         skin = new Skin();
@@ -250,7 +249,7 @@ public class GameScreen implements Screen {
         batch.end();
         batch.setProjectionMatrix(windowCamera.combined);
         batch.begin();
-        hero.renderGUI(batch, font48);
+        hero.renderGUI(batch, font32);
         miniMap.render(batch);
         batch.end();
         stage.draw();
@@ -310,6 +309,9 @@ public class GameScreen implements Screen {
             if (hero.getScale() > 2.0f) {
                 levelUp();
             }
+            if (hero.getLifeCount() < 1){
+                gameOver();
+            }
             camera.position.set(hero.getPosition().x - 32, hero.getPosition().y - 32, 0);
             if (camera.position.x < Rules.WORLD_WIDTH / 2) {
                 camera.position.x = Rules.WORLD_WIDTH / 2;
@@ -333,6 +335,10 @@ public class GameScreen implements Screen {
             pauseGameButton.setText("Paused");
         }
         stage.act(dt);
+    }
+
+    public void gameOver(){
+        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.GAMEOVER);
     }
 
     @Override

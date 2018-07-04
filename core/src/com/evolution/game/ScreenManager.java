@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class ScreenManager {
     public enum ScreenType {
-        MENU, GAME;
+        MENU, GAME, GAMEOVER;
     }
 
     private static ScreenManager ourInstance = new ScreenManager();
@@ -25,6 +25,7 @@ public class ScreenManager {
     private LoadingScreen loadingScreen;
     private GameScreen gameScreen;
     private MenuScreen menuScreen;
+    private GameOverScreen gameOverScreen;
 
     private SpriteBatch batch;
     private Viewport viewport;
@@ -44,6 +45,7 @@ public class ScreenManager {
         this.viewport = new FitViewport(Rules.WORLD_WIDTH, Rules.WORLD_HEIGHT, screenCamera);
         this.gameScreen = new GameScreen(batch);
         this.menuScreen = new MenuScreen(batch);
+        this.gameOverScreen = new GameOverScreen(batch);
         this.loadingScreen = new LoadingScreen(batch);
         this.screenCamera.position.set(Rules.WORLD_WIDTH / 2, Rules.WORLD_HEIGHT / 2, 0);
         this.screenCamera.update();
@@ -72,6 +74,12 @@ public class ScreenManager {
                 targetScreen = menuScreen;
                 Assets.getInstance().loadAssets(ScreenType.MENU);
                 break;
+            case GAMEOVER:
+                gameOverScreen.setFinalScore(gameScreen.getHero().getScore());
+                gameOverScreen.setFinalLevel(gameScreen.getLevel());
+                targetScreen = gameOverScreen;
+                Assets.getInstance().loadAssets(ScreenType.GAMEOVER);
+                break;
         }
     }
 
@@ -83,4 +91,5 @@ public class ScreenManager {
         gameScreen.setFilename(filename);
         gameScreen.setSaved(true);
     }
+
 }

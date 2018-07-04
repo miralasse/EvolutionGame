@@ -44,7 +44,7 @@ public class Assets {
                 assetManager.load("core/assets/game.pack", TextureAtlas.class);
                 assetManager.load("core/assets/music.wav", Music.class);
                 assetManager.load("core/assets/laser.wav", Sound.class);
-                createStdFont(48);
+                createStdFont(32);
                 createStdFont(24);
                 break;
             case MENU:
@@ -52,6 +52,10 @@ public class Assets {
                 createStdFont(32);
                 createStdFont(96);
                 break;
+            case GAMEOVER:
+                assetManager.load("core/assets/game.pack", TextureAtlas.class);
+                createStdFont(48);
+                createStdFont(96);
         }
     }
 
