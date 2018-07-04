@@ -1,9 +1,10 @@
 package com.evolution.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ObjectPool<T extends Poolable> {
+public abstract class ObjectPool<T extends Poolable> implements Serializable {
     protected List<T> activeList;
     protected List<T> freeList;
 

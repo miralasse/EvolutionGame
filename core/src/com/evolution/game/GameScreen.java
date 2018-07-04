@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -21,6 +22,9 @@ import com.evolution.game.units.Cell;
 import com.evolution.game.units.Enemy;
 import com.evolution.game.units.Hero;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +110,55 @@ public class GameScreen implements Screen {
         paused = false;
         createPauseButton();
         level = 1;
+    }
+
+    public void saveGame() {
+        ObjectOutputStream out = null;
+        try {
+            out = new ObjectOutputStream(Gdx.files.local("save.dat").write(false));
+            out.writeObject(consumableEmitter);
+            out.writeObject(enemyEmitter);
+            out.writeObject(particleEmitter);
+            out.writeObject(map);
+            out.writeObject(hero);
+            out.writeInt(level);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadGame() {
+        ObjectInputStream in = null;
+        try {
+            in = new ObjectInputStream(Gdx.files.local("save.dat").read());
+            consumableEmitter = (ConsumableEmitter) in.readObject();
+            enemyEmitter = (EnemyEmitter) in.readObject();
+            particleEmitter = (ParticleEmitter) in.readObject();
+            map = (Map) in.readObject();
+            hero = (Hero) in.readObject();
+            level = in.readInt();
+            enemyEmitter.reloadResources(this);
+            consumableEmitter.reloadResources(this);
+            particleEmitter.reloadResources();
+            map.reloadResources(this);
+            hero.reloadResources(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void createPauseButton() {
@@ -194,11 +247,19 @@ public class GameScreen implements Screen {
     }
 
     public void update(float dt) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            paused = !paused;
-        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
             ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.MENU);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F4)) {
+            saveGame();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F6)) {
+            loadGame();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            paused = !paused;
         }
 
         if (!paused) {

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class ParticleEmitter extends ObjectPool<Particle> {
-    private TextureRegion oneParticle;
+    private transient TextureRegion oneParticle;
     private Vector2 tmp;
 
     public ParticleEmitter() {
@@ -17,6 +17,10 @@ public class ParticleEmitter extends ObjectPool<Particle> {
     @Override
     protected Particle newObject() {
         return new Particle();
+    }
+
+    public void reloadResources() {
+        this.oneParticle = Assets.getInstance().getAtlas().findRegion("star16");
     }
 
     public void render(SpriteBatch batch) {

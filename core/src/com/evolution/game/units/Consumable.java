@@ -23,7 +23,7 @@ public class Consumable extends GamePoint {
     }
 
     private Type type;
-    private TextureRegion[] regions;
+    private transient TextureRegion[] regions;
 
     public Type getType() {
         return type;
@@ -37,6 +37,12 @@ public class Consumable extends GamePoint {
         this.velocity = new Vector2(0, 0);
         this.type = Type.FOOD;
         this.active = false;
+    }
+
+    public void reloadResources(GameScreen gs, TextureRegion[] regions) {
+        this.gs = gs;
+        this.regions = regions;
+        this.texture = regions[type.textureIndex];
     }
 
     public void consumed() {

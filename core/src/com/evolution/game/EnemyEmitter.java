@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evolution.game.units.Enemy;
 
 public class EnemyEmitter extends ObjectPool<Enemy> {
-    private GameScreen gs;
+    private transient GameScreen gs;
     private float time;
 
     @Override
@@ -15,6 +15,16 @@ public class EnemyEmitter extends ObjectPool<Enemy> {
     public EnemyEmitter(GameScreen gs) {
         this.gs = gs;
         this.addObjectsToFreeList(20);
+    }
+
+    public void reloadResources(GameScreen gs) {
+        this.gs = gs;
+        for (int i = 0; i < activeList.size(); i++) {
+            activeList.get(i).reloadResources(gs);
+        }
+        for (int i = 0; i < freeList.size(); i++) {
+            freeList.get(i).reloadResources(gs);
+        }
     }
 
     public void render(SpriteBatch batch) {

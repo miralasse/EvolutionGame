@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 
-public class Map {
-    private GameScreen gs;
-    private TextureRegion grassRegion;
-    private TextureRegion wallRegion;
+import java.io.Serializable;
+
+public class Map implements Serializable {
+    private transient GameScreen gs;
+    private transient TextureRegion grassRegion;
+    private transient TextureRegion wallRegion;
     private byte[][] data;
     private int sizeX, sizeY;
 
@@ -27,6 +29,12 @@ public class Map {
                 }
             }
         }
+    }
+
+    public void reloadResources(GameScreen gs) {
+        this.gs = gs;
+        this.grassRegion = Assets.getInstance().getAtlas().findRegion("grass");
+        this.wallRegion = Assets.getInstance().getAtlas().findRegion("wall");
     }
 
     public void render(SpriteBatch batch) {

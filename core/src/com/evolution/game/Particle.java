@@ -2,7 +2,9 @@ package com.evolution.game;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class Particle implements Poolable {
+import java.io.Serializable;
+
+public class Particle implements Poolable, Serializable {
     private Vector2 position;
     private Vector2 velocity;
     private float r1, g1, b1, a1;

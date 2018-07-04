@@ -14,7 +14,7 @@ import com.evolution.game.GameScreen;
 import com.evolution.game.Rules;
 
 public class Hero extends Cell {
-    private TextureRegion[] regions;
+    private transient TextureRegion[] regions;
     private float animationTimer;
     private float timePerFrame;
     private StringBuilder guiString;
@@ -34,6 +34,11 @@ public class Hero extends Cell {
         this.scale = 1.0f;
         this.guiString = new StringBuilder(200);
         this.levelString = new StringBuilder(200);
+    }
+
+    public void reloadResources(GameScreen gs) {
+        this.gs = gs;
+        this.regions = new TextureRegion(Assets.getInstance().getAtlas().findRegion("Char")).split(64, 64)[0];
     }
 
     @Override
